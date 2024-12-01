@@ -28,8 +28,8 @@ let backgroundY = 0;
 const player = {
     x: canvas.width / 2,
     y: canvas.height - 100,
-    width: 64, // Adjust based on your spaceship image size
-    height: 64, // Adjust based on your spaceship image size
+    width: 60, // Adjust based on your spaceship image size
+    height: 86, // Adjust based on your spaceship image size
     speed: 5
 };
 
