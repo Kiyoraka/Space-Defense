@@ -263,7 +263,7 @@ button:hover {
         font-size: 2em;
     }
     
-    .shoot-btn {
+    .shoot-btn, .special-btn {
         width: 90px;
         height: 90px;
         font-size: 2.2em;

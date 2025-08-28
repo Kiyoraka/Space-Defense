@@ -26,6 +26,21 @@ for (let i = 1; i <= 7; i++) {
     specialAttackImages.push(img);
 }
 
+// Load background music
+const backgroundMusic = new Audio('assets/sound/supernova.mp3');
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.3; // Set volume to 30%
+backgroundMusic.onerror = function() {
+    console.warn('Failed to load background music: supernova.mp3');
+};
+
+// Load special attack sound
+const specialAttackSound = new Audio('assets/sound/Special-Attack.mp3');
+specialAttackSound.volume = 0.5; // Set volume to 50%
+specialAttackSound.onerror = function() {
+    console.warn('Failed to load special attack sound: Special-Attack.mp3');
+};
+
 // Game state
 let gameRunning = false;
 let score = 0;
@@ -219,6 +234,9 @@ function updateSpecialAttackAvailability() {
 function triggerSpecialAttack() {
     if (!specialAttackAvailable || specialAttackPlaying) return;
     
+    // Play special attack sound
+    playSpecialAttackSound();
+    
     // Start special attack animation
     specialAttackPlaying = true;
     specialAttackFrame = 0;
@@ -325,6 +343,9 @@ function startGame() {
     document.getElementById('gameScreen').classList.remove('hidden');
     document.getElementById('touchControls').classList.remove('hidden');
     
+    // Start background music
+    startBackgroundMusic();
+    
     // Reset game state
     score = 0;
     lives = 3;
@@ -349,10 +370,51 @@ function startGame() {
 
 function endGame() {
     gameRunning = false;
+    
+    // Stop background music
+    stopBackgroundMusic();
+    
     document.getElementById('finalScore').textContent = score;
     document.getElementById('gameScreen').classList.add('hidden');
     document.getElementById('touchControls').classList.add('hidden');
     document.getElementById('gameOver').classList.remove('hidden');
+}
+
+// Audio control functions
+function startBackgroundMusic() {
+    if (!audioEnabled) {
+        console.log('Audio not yet enabled, will start music after user interaction');
+        return;
+    }
+    
+    // Reset to beginning and play
+    backgroundMusic.currentTime = 0;
+    const playPromise = backgroundMusic.play();
+    
+    // Handle autoplay policy restrictions
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.warn('Background music autoplay prevented:', error);
+        });
+    }
+}
+
+function stopBackgroundMusic() {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+}
+
+function playSpecialAttackSound() {
+    // Reset to beginning and play
+    specialAttackSound.currentTime = 0;
+    const playPromise = specialAttackSound.play();
+    
+    // Handle autoplay policy restrictions
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.warn('Special attack sound autoplay prevented:', error);
+        });
+    }
 }
 
 // Touch controls for Smart TV
@@ -467,9 +529,25 @@ function setupTouchControls() {
     });
 }
 
+// Enable audio on first user interaction
+let audioEnabled = false;
+function enableAudio() {
+    if (!audioEnabled) {
+        audioEnabled = true;
+        console.log('Audio enabled by user interaction');
+    }
+}
+
 // Event listeners for buttons
-document.getElementById('startButton').addEventListener('click', startGame);
-document.getElementById('restartButton').addEventListener('click', startGame);
+document.getElementById('startButton').addEventListener('click', () => {
+    enableAudio();
+    startGame();
+});
+
+document.getElementById('restartButton').addEventListener('click', () => {
+    enableAudio();
+    startGame();
+});
 
 // Initial setup
 document.getElementById('gameScreen').classList.add('hidden');
