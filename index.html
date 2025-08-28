@@ -29,6 +29,18 @@
             <canvas id="gameCanvas"></canvas>
         </div>
 
+        <!-- Touch Controls for Smart TV - Outside Canvas -->
+        <div class="touch-controls" id="touchControls">
+            <div class="movement-controls">
+                <button class="touch-btn move-btn" id="moveLeftBtn">◀</button>
+                <button class="touch-btn move-btn" id="moveRightBtn">▶</button>
+            </div>
+            <div class="attack-controls">
+                <button class="touch-btn shoot-btn" id="shootBtn">🚀</button>
+                <button class="touch-btn special-btn disabled" id="specialBtn" disabled>⚡</button>
+            </div>
+        </div>
+
         <div class="game-over" id="gameOver">
             <h2>Game Over!</h2>
             <p>Final Score: <span id="finalScore">0</span></p>

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(D:\\Afif Personal\\Kiyo Software TechLab\\Alice - Memory Of Eternal/**)",
+      "Read(D:\\Afif Personal\\Kiyo Software TechLab\\Alice - Memory Of Eternal\\main/**)",
+      "Read(D:\\Afif Personal\\Kiyo Software TechLab\\Alice - Memory Of Eternal\\main/**)",
+      "Read(D:\\Afif Personal\\Kiyo Software TechLab\\Alice - Memory Of Eternal\\main/**)",
+      "Read(D:\\Afif Personal\\Kiyo Software TechLab\\Alice - Memory Of Eternal/**)",
+      "Read(D:\\Afif Personal\\Kiyo Software TechLab\\Alice - Memory Of Eternal\\projects/**)",
+      "Bash(python:*)",
+      "Read(c:\\Users\\User\\Pictures\\Screenshots/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -15,6 +15,17 @@ playerImage.src = 'assets/img/spaceship.png';
 const asteroidImage = new Image();
 asteroidImage.src = 'assets/img/asteroid.png';
 
+// Load special attack animation images
+const specialAttackImages = [];
+for (let i = 1; i <= 7; i++) {
+    const img = new Image();
+    img.src = `assets/img/special-attack/SP-${i}.png`;
+    img.onerror = function() {
+        console.warn(`Failed to load special attack image: SP-${i}.png`);
+    };
+    specialAttackImages.push(img);
+}
+
 // Game state
 let gameRunning = false;
 let score = 0;
@@ -23,6 +34,14 @@ let asteroids = [];
 let bullets = [];
 let gameLoop;
 let backgroundY = 0;
+
+// Special attack system
+let specialAttackAvailable = false;
+let specialAttackPlaying = false;
+let specialAttackFrame = 0;
+let specialAttackFrameCounter = 0;
+const SPECIAL_ATTACK_FRAME_DELAY = 8; // frames between animation frames
+const SPECIAL_ATTACK_SCORE_THRESHOLD = 100;
 
 // Player ship
 const player = {
@@ -55,7 +74,15 @@ class Asteroid {
         ctx.save();
         ctx.translate(this.x + this.width/2, this.y + this.height/2);
         ctx.rotate(this.rotation);
-        ctx.drawImage(asteroidImage, -this.width/2, -this.height/2, this.width, this.height);
+        
+        if (asteroidImage.complete && asteroidImage.naturalWidth > 0) {
+            ctx.drawImage(asteroidImage, -this.width/2, -this.height/2, this.width, this.height);
+        } else {
+            // Fallback rectangle if image fails to load
+            ctx.fillStyle = '#ff6b35';
+            ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+        }
+        
         ctx.restore();
     }
 }
@@ -102,12 +129,18 @@ document.addEventListener('keyup', (e) => {
 
 // Scrolling background
 function drawBackground() {
-    ctx.drawImage(backgroundImage, 0, backgroundY, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, backgroundY - canvas.height, canvas.width, canvas.height);
-    
-    backgroundY += 0.5;
-    if (backgroundY >= canvas.height) {
-        backgroundY = 0;
+    if (backgroundImage.complete && backgroundImage.naturalWidth > 0) {
+        ctx.drawImage(backgroundImage, 0, backgroundY, canvas.width, canvas.height);
+        ctx.drawImage(backgroundImage, 0, backgroundY - canvas.height, canvas.width, canvas.height);
+        
+        backgroundY += 0.5;
+        if (backgroundY >= canvas.height) {
+            backgroundY = 0;
+        }
+    } else {
+        // Fallback background color if image fails to load
+        ctx.fillStyle = '#0a0a2a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 }
 
@@ -125,7 +158,13 @@ function updatePlayer() {
 }
 
 function drawPlayer() {
-    ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+    if (playerImage.complete && playerImage.naturalWidth > 0) {
+        ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+    } else {
+        // Fallback rectangle if image fails to load
+        ctx.fillStyle = '#4fc3f7';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 }
 
 function checkCollisions() {
@@ -140,6 +179,9 @@ function checkCollisions() {
                 asteroids.splice(asteroidIndex, 1);
                 score += 10;
                 document.getElementById('scoreValue').textContent = score;
+                
+                // Check if special attack should be enabled
+                updateSpecialAttackAvailability();
             }
         });
     });
@@ -158,6 +200,84 @@ function checkCollisions() {
             }
         }
     });
+}
+
+function updateSpecialAttackAvailability() {
+    const wasAvailable = specialAttackAvailable;
+    specialAttackAvailable = score >= SPECIAL_ATTACK_SCORE_THRESHOLD;
+    
+    const specialBtn = document.getElementById('specialBtn');
+    if (specialAttackAvailable && !wasAvailable) {
+        specialBtn.classList.remove('disabled');
+        specialBtn.disabled = false;
+    } else if (!specialAttackAvailable && wasAvailable) {
+        specialBtn.classList.add('disabled');
+        specialBtn.disabled = true;
+    }
+}
+
+function triggerSpecialAttack() {
+    if (!specialAttackAvailable || specialAttackPlaying) return;
+    
+    // Start special attack animation
+    specialAttackPlaying = true;
+    specialAttackFrame = 0;
+    specialAttackFrameCounter = 0;
+    
+    // Destroy all asteroids
+    asteroids = [];
+    
+    // Disable special attack until next threshold
+    specialAttackAvailable = false;
+    const specialBtn = document.getElementById('specialBtn');
+    specialBtn.classList.add('disabled');
+    specialBtn.disabled = true;
+}
+
+function updateSpecialAttack() {
+    if (!specialAttackPlaying) return;
+    
+    specialAttackFrameCounter++;
+    
+    if (specialAttackFrameCounter >= SPECIAL_ATTACK_FRAME_DELAY) {
+        specialAttackFrameCounter = 0;
+        specialAttackFrame++;
+        
+        if (specialAttackFrame >= specialAttackImages.length) {
+            specialAttackPlaying = false;
+            specialAttackFrame = 0;
+        }
+    }
+}
+
+function drawSpecialAttack() {
+    if (!specialAttackPlaying) return;
+    
+    const img = specialAttackImages[specialAttackFrame];
+    if (img && img.complete && img.naturalWidth > 0) {
+        // Resize and center the animation in the canvas
+        const targetWidth = canvas.width * 0.8; // 80% of canvas width
+        const targetHeight = canvas.height * 0.8; // 80% of canvas height
+        
+        // Maintain aspect ratio
+        const imgAspect = img.naturalWidth / img.naturalHeight;
+        const targetAspect = targetWidth / targetHeight;
+        
+        let drawWidth, drawHeight;
+        if (imgAspect > targetAspect) {
+            drawWidth = targetWidth;
+            drawHeight = targetWidth / imgAspect;
+        } else {
+            drawHeight = targetHeight;
+            drawWidth = targetHeight * imgAspect;
+        }
+        
+        // Center the resized image
+        const x = (canvas.width - drawWidth) / 2;
+        const y = (canvas.height - drawHeight) / 2;
+        
+        ctx.drawImage(img, x, y, drawWidth, drawHeight);
+    }
 }
 
 function spawnAsteroid() {
@@ -188,6 +308,12 @@ function updateGame() {
     // Check collisions
     checkCollisions();
 
+    // Update special attack animation
+    updateSpecialAttack();
+    
+    // Draw special attack animation (on top of everything)
+    drawSpecialAttack();
+
     if (gameRunning) {
         requestAnimationFrame(updateGame);
     }
@@ -197,6 +323,7 @@ function startGame() {
     document.getElementById('menuScreen').classList.add('hidden');
     document.getElementById('gameOver').classList.add('hidden');
     document.getElementById('gameScreen').classList.remove('hidden');
+    document.getElementById('touchControls').classList.remove('hidden');
     
     // Reset game state
     score = 0;
@@ -204,6 +331,14 @@ function startGame() {
     asteroids = [];
     bullets = [];
     player.x = canvas.width / 2;
+    
+    // Reset special attack state
+    specialAttackAvailable = false;
+    specialAttackPlaying = false;
+    specialAttackFrame = 0;
+    const specialBtn = document.getElementById('specialBtn');
+    specialBtn.classList.add('disabled');
+    specialBtn.disabled = true;
     
     document.getElementById('scoreValue').textContent = score;
     document.getElementById('livesValue').textContent = lives;
@@ -216,7 +351,120 @@ function endGame() {
     gameRunning = false;
     document.getElementById('finalScore').textContent = score;
     document.getElementById('gameScreen').classList.add('hidden');
+    document.getElementById('touchControls').classList.add('hidden');
     document.getElementById('gameOver').classList.remove('hidden');
+}
+
+// Touch controls for Smart TV
+const touchControls = {
+    moveLeft: false,
+    moveRight: false,
+    shoot: false
+};
+
+// Touch event handlers
+function setupTouchControls() {
+    const moveLeftBtn = document.getElementById('moveLeftBtn');
+    const moveRightBtn = document.getElementById('moveRightBtn');
+    const shootBtn = document.getElementById('shootBtn');
+
+    // Movement controls
+    moveLeftBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        touchControls.moveLeft = true;
+        keys.left = true;
+    });
+    
+    moveLeftBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        touchControls.moveLeft = false;
+        keys.left = false;
+    });
+
+    moveRightBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        touchControls.moveRight = true;
+        keys.right = true;
+    });
+    
+    moveRightBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        touchControls.moveRight = false;
+        keys.right = false;
+    });
+
+    // Shoot control
+    shootBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        touchControls.shoot = true;
+        keys.space = true;
+    });
+    
+    shootBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        touchControls.shoot = false;
+        keys.space = false;
+    });
+
+    // Special attack control
+    const specialBtn = document.getElementById('specialBtn');
+    specialBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        triggerSpecialAttack();
+    });
+    
+    specialBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        triggerSpecialAttack();
+    });
+
+    // Also support mouse events for testing on desktop
+    moveLeftBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        touchControls.moveLeft = true;
+        keys.left = true;
+    });
+    
+    moveLeftBtn.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        touchControls.moveLeft = false;
+        keys.left = false;
+    });
+
+    moveRightBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        touchControls.moveRight = true;
+        keys.right = true;
+    });
+    
+    moveRightBtn.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        touchControls.moveRight = false;
+        keys.right = false;
+    });
+
+    shootBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        touchControls.shoot = true;
+        keys.space = true;
+    });
+    
+    shootBtn.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        touchControls.shoot = false;
+        keys.space = false;
+    });
+
+    // Special attack mouse events
+    specialBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        triggerSpecialAttack();
+    });
+
+    // Prevent context menu on touch controls
+    [moveLeftBtn, moveRightBtn, shootBtn, specialBtn].forEach(btn => {
+        btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
 }
 
 // Event listeners for buttons
@@ -226,3 +474,7 @@ document.getElementById('restartButton').addEventListener('click', startGame);
 // Initial setup
 document.getElementById('gameScreen').classList.add('hidden');
 document.getElementById('gameOver').classList.add('hidden');
+document.getElementById('touchControls').classList.add('hidden');
+
+// Initialize touch controls
+setupTouchControls();

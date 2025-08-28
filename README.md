@@ -13,7 +13,9 @@ A classic space shooter game where players defend Earth from incoming asteroids.
 - Lives counter
 - Parallax scrolling background
 - Responsive design
-- Dark/Light theme support
+- **Touch screen controls for Smart TV**
+- **On-screen movement and attack buttons**
+- Mouse and keyboard support
 
 ## 🛠️ Technologies Used
 
@@ -41,11 +43,18 @@ space-defense/
 
 ## 🎯 How to Play
 
+### Keyboard Controls (Desktop)
 1. Use Left/Right arrow keys or A/D keys to move the spaceship
 2. Press Spacebar to shoot
 3. Avoid colliding with asteroids
 4. Destroy asteroids to score points
 5. Game ends when you run out of lives
+
+### Touch Controls (Smart TV/Touch Devices)
+1. Use the ◀ ▶ buttons at the bottom to move left/right
+2. Tap the 🚀 button to shoot
+3. All controls are positioned outside the game canvas for easy access
+4. Buttons are optimized for touch screens and Smart TV interfaces
 
 ## 🚀 Getting Started
 
@@ -83,10 +92,19 @@ python -m http.server
 
 ## 🎮 Game Controls
 
+### Desktop/Keyboard Controls
 - **Move Left**: Left Arrow or 'A' key
 - **Move Right**: Right Arrow or 'D' key
 - **Shoot**: Spacebar
 - **Restart**: Click 'Play Again' button after game over
+
+### Touch/Smart TV Controls
+- **Move Left**: Touch ◀ button (bottom left)
+- **Move Right**: Touch ▶ button (bottom right)
+- **Shoot**: Touch 🚀 button (bottom right)
+- **Restart**: Click 'Play Again' button after game over
+
+**Note**: Touch controls are positioned outside the game canvas for optimal Smart TV experience and prevent interference with gameplay.
 
 ## 🔧 Customization
 

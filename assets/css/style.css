@@ -18,10 +18,12 @@ body {
 .game-container {
     position: relative;
     width: 800px;
-    height: 600px;
+    height: 720px;
     background-color: #000;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-screen, .game-over {
@@ -100,7 +102,8 @@ button:hover {
 .game-screen {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 600px;
+    flex-shrink: 0;
 }
 
 .hud {
@@ -138,4 +141,157 @@ button:hover {
     font-size: 1.5em;
     margin-bottom: 20px;
     color: #4fc3f7;
+}
+
+/* Touch Controls for Smart TV - Outside Canvas */
+.touch-controls {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    background: linear-gradient(135deg, rgba(10, 10, 42, 0.9), rgba(0, 0, 0, 0.8));
+    border-radius: 0 0 10px 10px;
+    backdrop-filter: blur(10px);
+    border-top: 2px solid rgba(79, 195, 247, 0.3);
+    flex-shrink: 0;
+}
+
+.movement-controls {
+    display: flex;
+    gap: 20px;
+    margin-left: 20px;
+}
+
+.touch-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.move-btn {
+    background: linear-gradient(135deg, #4fc3f7, #03a9f4);
+    color: white;
+    border: 2px solid #0277bd;
+}
+
+.move-btn:hover, .move-btn:active {
+    background: linear-gradient(135deg, #29b6f6, #0288d1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.4);
+}
+
+.attack-controls {
+    display: flex;
+    gap: 15px;
+    margin-right: 20px;
+}
+
+.shoot-btn {
+    background: linear-gradient(135deg, #ff5722, #d84315);
+    color: white;
+    border: 2px solid #bf360c;
+    width: 70px;
+    height: 70px;
+    font-size: 1.8em;
+}
+
+.special-btn {
+    background: linear-gradient(135deg, #9c27b0, #673ab7);
+    color: white;
+    border: 2px solid #4a148c;
+    width: 70px;
+    height: 70px;
+    font-size: 1.8em;
+    position: relative;
+    overflow: hidden;
+}
+
+.special-btn:hover:not(.disabled), .special-btn:active:not(.disabled) {
+    background: linear-gradient(135deg, #ba68c8, #7986cb);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
+}
+
+.special-btn.disabled {
+    background: linear-gradient(135deg, #424242, #616161);
+    color: #9e9e9e;
+    border: 2px solid #757575;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.special-btn:not(.disabled)::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    border-radius: 50%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.shoot-btn:hover, .shoot-btn:active {
+    background: linear-gradient(135deg, #ff6f00, #e65100);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+}
+
+/* Smart TV optimizations */
+@media screen and (min-width: 1200px) {
+    .touch-btn {
+        width: 80px;
+        height: 80px;
+        font-size: 2em;
+    }
+    
+    .shoot-btn {
+        width: 90px;
+        height: 90px;
+        font-size: 2.2em;
+    }
+    
+    .movement-controls {
+        gap: 30px;
+        margin-left: 40px;
+    }
+    
+    .attack-controls {
+        gap: 20px;
+        margin-right: 40px;
+    }
+    
+    .touch-controls {
+        height: 120px;
+        padding: 20px 80px;
+        max-width: 800px;
+    }
+}
+
+/* Touch feedback animations */
+.touch-btn:active {
+    transform: scale(0.95);
+}
+
+/* Hide touch controls when not needed */
+.touch-controls.hidden {
+    display: none;
 }
