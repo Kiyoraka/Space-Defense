@@ -55,6 +55,7 @@ let specialAttackAvailable = false;
 let specialAttackPlaying = false;
 let specialAttackFrame = 0;
 let specialAttackFrameCounter = 0;
+let lastSpecialAttackScore = 0; // Track when last special attack was used
 const SPECIAL_ATTACK_FRAME_DELAY = 8; // frames between animation frames
 const SPECIAL_ATTACK_SCORE_THRESHOLD = 100;
 
@@ -219,7 +220,8 @@ function checkCollisions() {
 
 function updateSpecialAttackAvailability() {
     const wasAvailable = specialAttackAvailable;
-    specialAttackAvailable = score >= SPECIAL_ATTACK_SCORE_THRESHOLD;
+    // Check if player has gained 100 points since last special attack
+    specialAttackAvailable = (score - lastSpecialAttackScore) >= SPECIAL_ATTACK_SCORE_THRESHOLD;
     
     const specialBtn = document.getElementById('specialBtn');
     if (specialAttackAvailable && !wasAvailable) {
@@ -245,7 +247,8 @@ function triggerSpecialAttack() {
     // Destroy all asteroids
     asteroids = [];
     
-    // Disable special attack until next threshold
+    // Reset special attack requirement - player needs another 100 points
+    lastSpecialAttackScore = score;
     specialAttackAvailable = false;
     const specialBtn = document.getElementById('specialBtn');
     specialBtn.classList.add('disabled');
@@ -357,6 +360,7 @@ function startGame() {
     specialAttackAvailable = false;
     specialAttackPlaying = false;
     specialAttackFrame = 0;
+    lastSpecialAttackScore = 0; // Reset the score tracker
     const specialBtn = document.getElementById('specialBtn');
     specialBtn.classList.add('disabled');
     specialBtn.disabled = true;
@@ -405,6 +409,11 @@ function stopBackgroundMusic() {
 }
 
 function playSpecialAttackSound() {
+    if (!audioEnabled) {
+        console.log('Audio not enabled, special attack sound will be silent');
+        return;
+    }
+    
     // Reset to beginning and play
     specialAttackSound.currentTime = 0;
     const playPromise = specialAttackSound.play();
