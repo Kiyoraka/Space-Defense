@@ -244,10 +244,20 @@ function triggerSpecialAttack() {
     specialAttackFrame = 0;
     specialAttackFrameCounter = 0;
     
+    // Count asteroids before destroying them and add to score
+    const asteroidsDestroyed = asteroids.length;
+    const bonusScore = asteroidsDestroyed * 10; // 10 points per asteroid
+    
+    // Add bonus score for destroyed asteroids
+    score += bonusScore;
+    document.getElementById('scoreValue').textContent = score;
+    
     // Destroy all asteroids
     asteroids = [];
     
     // Reset special attack requirement - player needs another 100 points
+    // IMPORTANT: Set lastSpecialAttackScore to current score (including bonus)
+    // so the bonus points don't immediately retrigger special attack
     lastSpecialAttackScore = score;
     specialAttackAvailable = false;
     const specialBtn = document.getElementById('specialBtn');
