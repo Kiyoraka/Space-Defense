@@ -1,6 +1,6 @@
 # Space Defense Game 🚀
 
-A classic space shooter game where players defend Earth from incoming asteroids. Built with HTML5 Canvas, CSS3, and JavaScript.
+A classic space shooter game where players shoot asteroids. Built with HTML5 Canvas, CSS3, and JavaScript.
 
 ![Space Defense Game](assets/img/game-preview.png)
 
